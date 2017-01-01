@@ -83,6 +83,14 @@ test('match keyword after spaces', t => {
     t.end();
 });
 
+test('don\'t match no keyword', t => {
+    cursor = 0;
+    line = '"begins with quote"';
+    const match = matchKeyword();
+    t.false(match);
+    t.end();
+});
+
 test('match string at the beginning', t => {
     cursor = 0;
     line = '"here is" a string';
@@ -98,5 +106,13 @@ test('match string after spaces', t => {
     const match = matchString();
     t.true(match);
     t.equal(token, 'some say');
+    t.end();
+});
+
+test('don\'t match no string', t => {
+    cursor = 0;
+    line = 'LET x := 7';
+    const match = matchString();
+    t.false(match);
     t.end();
 });
