@@ -11,11 +11,13 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^6.0.55",
+    "@types/tape": "^4.2.28",
     "@types/xregexp": "^3.0.28",
     "ts-node": "^2.0.0",
     "typescript": "^2.1.4"
   },
   "dependencies": {
+    "tape": "^4.6.3",
     "xregexp": "^3.1.1"
   }
 }

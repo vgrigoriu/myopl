@@ -36,4 +36,23 @@ const alphaRegexp = XRegExp('\\p{Letter}');
 function isAlpha(letter: string) {
     return alphaRegexp.test(letter);
 }
-console.log(isAlpha('本'));
+
+import * as test from 'tape';
+
+test('match keyword at the beginning', t => {
+    cursor = 0;
+    line = 'LET x = 12';
+    const match = matchKeyword();
+    t.true(match);
+    t.equal(token, 'LET');
+    t.end();
+});
+
+test('match keyword after spaces', t => {
+    cursor = 0;
+    line = '  \tREM this is a comment';
+    const match = matchKeyword();
+    t.true(match);
+    t.equal(token, 'REM');
+    t.end();
+});
