@@ -53,6 +53,8 @@ function matchString(): boolean {
     return true;
 }
 
+// TODO: matchNumber (123), matchVariable (var1)
+
 function isSpace(letter: string) {
     return /\s/.test(letter);
 }
