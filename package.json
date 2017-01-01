@@ -1,0 +1,9 @@
+{
+  "name": "myopl",
+  "version": "1.0.0",
+  "description": "Make your own programming language",
+  "main": "index.ts",
+  "repository": "https://github.com/vgrigoriu/myopl",
+  "author": "Victor Grigoriu",
+  "license": "MIT"
+}
