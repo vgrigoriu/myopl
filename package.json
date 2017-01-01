@@ -5,5 +5,8 @@
   "main": "index.ts",
   "repository": "https://github.com/vgrigoriu/myopl",
   "author": "Victor Grigoriu",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.1.4"
+  }
 }
