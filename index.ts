@@ -11,7 +11,7 @@ function skipWhitespace() {
     }
 }
 
-function matchKeyword() {
+function matchKeyword(): boolean {
     skipWhitespace();
 
     if (line.length <= cursor || !(isAlpha(line[cursor]))) {
@@ -24,6 +24,32 @@ function matchKeyword() {
     }
 
     token = line.substring(mark, cursor);
+    return true;
+}
+
+function matchString(): boolean {
+    skipWhitespace();
+    if (line.length < cursor || line[cursor] !== '"') {
+        return false;
+    }
+
+    const mark = cursor;
+
+    // skip the opening double quote
+    cursor += 1;
+    while (line[cursor] !== '"') {
+        cursor += 1;
+        if (line.length < cursor) {
+            throw new Error('Unclosed string');
+        }
+    }
+
+    // skip the closing double quote
+    cursor += 1;
+
+    // save string value w/o the double quotes
+    token = line.substring(mark + 1, cursor - 1);
+
     return true;
 }
 
@@ -54,5 +80,23 @@ test('match keyword after spaces', t => {
     const match = matchKeyword();
     t.true(match);
     t.equal(token, 'REM');
+    t.end();
+});
+
+test('match string at the beginning', t => {
+    cursor = 0;
+    line = '"here is" a string';
+    const match = matchString();
+    t.true(match);
+    t.equal(token, 'here is');
+    t.end();
+});
+
+test('match string after spaces', t => {
+    cursor = 0;
+    line = '   "some say" the trout is a fish';
+    const match = matchString();
+    t.true(match);
+    t.equal(token, 'some say');
     t.end();
 });
