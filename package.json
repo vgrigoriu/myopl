@@ -2,12 +2,16 @@
   "name": "myopl",
   "version": "1.0.0",
   "description": "Make your own programming language",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
   "main": "index.ts",
   "repository": "https://github.com/vgrigoriu/myopl",
   "author": "Victor Grigoriu",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^6.0.55",
+    "ts-node": "^2.0.0",
     "typescript": "^2.1.4"
   }
 }
