@@ -4,6 +4,85 @@ let line: string;
 let cursor = 0;
 let token: string | undefined;
 
+const variables: Map<string, number> = new Map<string, number>();
+
+function parse_statement() {
+    if (!matchKeyword()) {
+        throw new Error('Statement expected');
+    }
+
+    const statement = token!.toLowerCase();
+    if (statement === 'let') {
+        parseLet();
+    } else if (statement === 'print') {
+        parsePrint();
+    } else {
+        throw new Error(`Unknown statement: ${statement}`);
+    }
+}
+
+function parseLet() {
+    if (!matchVariable()) {
+        throw new Error('Variable expected');
+    }
+
+    // variable names are not case sensitive
+    const varName = token!.toLowerCase();
+    if (!match('=')) {
+        throw new Error('= expected');
+    }
+
+    if (!matchNumber()) {
+        throw new Error('Number expected');
+    }
+
+    const varValue = parseInt(token!, 10);
+    if (!matchEol()) {
+        throw new Error('End of line expected');
+    }
+
+    variables.set(varName, varValue);
+}
+
+function parsePrint() {
+    if (matchEol()) {
+        console.log();
+        return;
+    }
+
+    let value = parseValue().toString();
+    while (match(',')) {
+        value += parseValue().toString();
+    }
+
+    if (!matchEol()) {
+        throw new Error('End of line expected');
+    }
+
+    console.log(value);
+}
+
+function parseValue() {
+    if (matchString()) {
+        return token!;
+    }
+
+    if (matchNumber()) {
+        return parseInt(token!, 10);
+    }
+
+    if (matchVariable()) {
+        const varName = token!.toLowerCase();
+        if (variables.has(varName)) {
+            return variables.get(varName)!;
+        } else {
+            throw new Error(`Variable ${varName} not found`);
+        }
+    }
+
+    throw new Error('Value expected');
+}
+
 function skipWhitespace() {
     const x = line[cursor];
     while (cursor < line.length && char.isSpace(line[cursor])) {
@@ -85,6 +164,22 @@ function matchVariable(): boolean {
 
     token = line.substring(mark, cursor);
     return true;
+}
+
+function match(text: string): boolean {
+    skipWhitespace();
+
+    if (line.startsWith(text, cursor)) {
+        cursor += text.length;
+        return true;
+    }
+
+    return false;
+}
+
+function matchEol(): boolean {
+    skipWhitespace();
+    return line.length <= cursor;
 }
 
 import * as test from 'tape';
@@ -192,3 +287,11 @@ test('don\'t match no variable', t => {
     t.false(match);
     t.end();
 });
+
+// main
+line = 'LET a = 42';
+cursor = 0;
+parse_statement();
+line = 'PRINT "a = ", a';
+cursor = 0;
+parse_statement();
