@@ -1,4 +1,4 @@
-import * as XRegExp from 'xregexp';
+import * as char from './char';
 
 let line: string;
 let cursor = 0;
@@ -6,7 +6,7 @@ let token: string | undefined;
 
 function skipWhitespace() {
     const x = line[cursor];
-    while (cursor < line.length && isSpace(line[cursor])) {
+    while (cursor < line.length && char.isSpace(line[cursor])) {
         cursor += 1;
     }
 }
@@ -14,12 +14,12 @@ function skipWhitespace() {
 function matchKeyword(): boolean {
     skipWhitespace();
 
-    if (line.length <= cursor || !(isAlpha(line[cursor]))) {
+    if (line.length <= cursor || !(char.isAlpha(line[cursor]))) {
         return false;
     }
 
     const mark = cursor;
-    while (cursor < line.length && isAlpha(line[cursor])) {
+    while (cursor < line.length && char.isAlpha(line[cursor])) {
         cursor += 1;
     }
 
@@ -56,12 +56,12 @@ function matchString(): boolean {
 // TODO: matchNumber (123), matchVariable (var1)
 function matchNumber(): boolean {
     skipWhitespace();
-    if (line.length <= cursor || !isDigit(line[cursor])) {
+    if (line.length <= cursor || !char.isDigit(line[cursor])) {
         return false;
     }
 
     const mark = cursor;
-    while (cursor < line.length && isDigit(line[cursor])) {
+    while (cursor < line.length && char.isDigit(line[cursor])) {
         cursor += 1;
     }
 
@@ -71,7 +71,7 @@ function matchNumber(): boolean {
 
 function matchVariable(): boolean {
     skipWhitespace();
-    if (line.length <= cursor || !isAlpha(line[cursor])) {
+    if (line.length <= cursor || !char.isAlpha(line[cursor])) {
         return false;
     }
 
@@ -79,26 +79,12 @@ function matchVariable(): boolean {
     // we already checked the first non-space character,
     // we know it's a letter so we look for letters or digits
     cursor += 1;
-    while (cursor < line.length && (isDigit(line[cursor]) || isAlpha(line[cursor]))) {
+    while (cursor < line.length && (char.isDigit(line[cursor]) || char.isAlpha(line[cursor]))) {
         cursor += 1;
     }
 
     token = line.substring(mark, cursor);
     return true;
-}
-
-function isSpace(char: string) {
-    return /\s/.test(char);
-}
-
-const alphaRegexp = XRegExp('\\p{Letter}');
-
-function isAlpha(char: string) {
-    return alphaRegexp.test(char);
-}
-
-function isDigit(char: string) {
-    return /\d/.test(char);
 }
 
 import * as test from 'tape';
