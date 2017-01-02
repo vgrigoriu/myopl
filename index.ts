@@ -29,7 +29,7 @@ function matchKeyword(): boolean {
 
 function matchString(): boolean {
     skipWhitespace();
-    if (line.length < cursor || line[cursor] !== '"') {
+    if (line.length <= cursor || line[cursor] !== '"') {
         return false;
     }
 
@@ -54,15 +54,33 @@ function matchString(): boolean {
 }
 
 // TODO: matchNumber (123), matchVariable (var1)
+function matchNumber() : boolean {
+    skipWhitespace();
+    if (line.length <= cursor || !isDigit(line[cursor])) {
+        return false;
+    }
 
-function isSpace(letter: string) {
-    return /\s/.test(letter);
+    const mark = cursor;
+    while (cursor < line.length && isDigit(line[cursor])) {
+        cursor += 1;
+    }
+
+    token = line.substring(mark, cursor);
+    return true;
+}
+
+function isSpace(char: string) {
+    return /\s/.test(char);
 }
 
 const alphaRegexp = XRegExp('\\p{Letter}');
 
-function isAlpha(letter: string) {
-    return alphaRegexp.test(letter);
+function isAlpha(char: string) {
+    return alphaRegexp.test(char);
+}
+
+function isDigit(char: string) {
+    return /\d/.test(char);
 }
 
 import * as test from 'tape';
@@ -115,6 +133,32 @@ test('don\'t match no string', t => {
     cursor = 0;
     line = 'LET x := 7';
     const match = matchString();
+    t.false(match);
+    t.end();
+});
+
+test('match number at the beginning', t => {
+    cursor = 0;
+    line = '123+456';
+    const match = matchNumber();
+    t.true(match);
+    t.equal(token, '123');
+    t.end();
+});
+
+test('match number after spaces', t => {
+    cursor = 0;
+    line = ' 998 bottles of beer on the wall';
+    const match = matchNumber();
+    t.true(match);
+    t.equal(token, '998');
+    t.end();
+});
+
+test('don\'t match no number', t => {
+    cursor = 0;
+    line = 'LET x := 7';
+    const match = matchNumber();
     t.false(match);
     t.end();
 });
