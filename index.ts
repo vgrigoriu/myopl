@@ -54,7 +54,7 @@ function matchString(): boolean {
 }
 
 // TODO: matchNumber (123), matchVariable (var1)
-function matchNumber() : boolean {
+function matchNumber(): boolean {
     skipWhitespace();
     if (line.length <= cursor || !isDigit(line[cursor])) {
         return false;
@@ -62,6 +62,24 @@ function matchNumber() : boolean {
 
     const mark = cursor;
     while (cursor < line.length && isDigit(line[cursor])) {
+        cursor += 1;
+    }
+
+    token = line.substring(mark, cursor);
+    return true;
+}
+
+function matchVariable(): boolean {
+    skipWhitespace();
+    if (line.length <= cursor || !isAlpha(line[cursor])) {
+        return false;
+    }
+
+    const mark = cursor;
+    // we already checked the first non-space character,
+    // we know it's a letter so we look for letters or digits
+    cursor += 1;
+    while (cursor < line.length && (isDigit(line[cursor]) || isAlpha(line[cursor]))) {
         cursor += 1;
     }
 
@@ -159,6 +177,32 @@ test('don\'t match no number', t => {
     cursor = 0;
     line = 'LET x := 7';
     const match = matchNumber();
+    t.false(match);
+    t.end();
+});
+
+test('match variable at the beginning', t => {
+    cursor = 0;
+    line = 'myVar1 > 12';
+    const match = matchVariable();
+    t.true(match);
+    t.equal(token, 'myVar1');
+    t.end();
+});
+
+test('match variable after spaces', t => {
+    cursor = 3;
+    line = 'LET    A1B := 21';
+    const match = matchVariable();
+    t.true(match);
+    t.equal(token, 'A1B');
+    t.end();
+});
+
+test('don\'t match no variable', t => {
+    cursor = 0;
+    line = '"var1"';
+    const match = matchVariable();
     t.false(match);
     t.end();
 });
