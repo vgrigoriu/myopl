@@ -1,4 +1,5 @@
 import * as char from './char';
+import { MatchResult } from './tokenizer'
 
 let line: string;
 let cursor = 0;
@@ -7,11 +8,12 @@ let token: string | undefined;
 const variables: Map<string, number> = new Map<string, number>();
 
 function parse_statement() {
-    if (!matchKeyword()) {
+    const keyword = matchKeyword();
+    if (!keyword.isSuccess) {
         throw new Error('Statement expected');
     }
 
-    const statement = token!.toLowerCase();
+    const statement = keyword.getToken().text.toLowerCase();
     if (statement === 'let') {
         parseLet();
     } else if (statement === 'print') {
@@ -90,11 +92,11 @@ function skipWhitespace() {
     }
 }
 
-function matchKeyword(): boolean {
+function matchKeyword(): MatchResult {
     skipWhitespace();
 
     if (line.length <= cursor || !(char.isAlpha(line[cursor]))) {
-        return false;
+        return MatchResult.fail();
     }
 
     const mark = cursor;
@@ -102,8 +104,11 @@ function matchKeyword(): boolean {
         cursor += 1;
     }
 
-    token = line.substring(mark, cursor);
-    return true;
+    return MatchResult.from({
+        type: 'keyword',
+        text: line.substring(mark, cursor),
+        start: mark
+    });
 }
 
 function matchString(): boolean {
@@ -188,8 +193,8 @@ test('match keyword at the beginning', t => {
     cursor = 0;
     line = 'LET x = 12';
     const match = matchKeyword();
-    t.true(match);
-    t.equal(token, 'LET');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'LET');
     t.end();
 });
 
@@ -197,8 +202,8 @@ test('match keyword after spaces', t => {
     cursor = 0;
     line = '  \tREM this is a comment';
     const match = matchKeyword();
-    t.true(match);
-    t.equal(token, 'REM');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'REM');
     t.end();
 });
 
@@ -206,7 +211,7 @@ test('don\'t match no keyword', t => {
     cursor = 0;
     line = '"begins with quote"';
     const match = matchKeyword();
-    t.false(match);
+    t.false(match.isSuccess);
     t.end();
 });
 
