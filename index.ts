@@ -41,7 +41,7 @@ function parseLet() {
     }
 
     const varValue = parseInt(numberMatch.getToken().text, 10);
-    if (!matchEol()) {
+    if (!matchEol().isSuccess) {
         throw new Error('End of line expected');
     }
 
@@ -49,7 +49,7 @@ function parseLet() {
 }
 
 function parsePrint() {
-    if (matchEol()) {
+    if (matchEol().isSuccess) {
         console.log();
         return;
     }
@@ -59,7 +59,7 @@ function parsePrint() {
         value += parseValue().toString();
     }
 
-    if (!matchEol()) {
+    if (!matchEol().isSuccess) {
         throw new Error('End of line expected');
     }
 
@@ -200,9 +200,16 @@ function match(text: string): MatchResult {
     return MatchResult.fail();
 }
 
-function matchEol(): boolean {
+function matchEol(): MatchResult {
     skipWhitespace();
-    return line.length <= cursor;
+    return line.length <= cursor
+        ? MatchResult.from({
+            type: 'eol',
+            text: '',
+            start: cursor
+            
+        })
+        : MatchResult.fail();
 }
 
 import * as test from 'tape';
