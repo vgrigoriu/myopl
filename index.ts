@@ -65,8 +65,9 @@ function parsePrint() {
 }
 
 function parseValue() {
-    if (matchString()) {
-        return token!;
+    const stringMatch = matchString();
+    if (stringMatch.isSuccess) {
+        return stringMatch.getToken().text;
     }
 
     if (matchNumber()) {
@@ -111,10 +112,10 @@ function matchKeyword(): MatchResult {
     });
 }
 
-function matchString(): boolean {
+function matchString(): MatchResult {
     skipWhitespace();
     if (line.length <= cursor || line[cursor] !== '"') {
-        return false;
+        return MatchResult.fail();
     }
 
     const mark = cursor;
@@ -131,13 +132,14 @@ function matchString(): boolean {
     // skip the closing double quote
     cursor += 1;
 
-    // save string value w/o the double quotes
-    token = line.substring(mark + 1, cursor - 1);
-
-    return true;
+    return MatchResult.from({
+        type: 'string',
+        // save string value w/o the double quotes
+        text: line.substring(mark + 1, cursor - 1),
+        start: mark + 1
+    });
 }
 
-// TODO: matchNumber (123), matchVariable (var1)
 function matchNumber(): boolean {
     skipWhitespace();
     if (line.length <= cursor || !char.isDigit(line[cursor])) {
@@ -219,8 +221,8 @@ test('match string at the beginning', t => {
     cursor = 0;
     line = '"here is" a string';
     const match = matchString();
-    t.true(match);
-    t.equal(token, 'here is');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'here is');
     t.end();
 });
 
@@ -228,8 +230,8 @@ test('match string after spaces', t => {
     cursor = 0;
     line = '   "some say" the trout is a fish';
     const match = matchString();
-    t.true(match);
-    t.equal(token, 'some say');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'some say');
     t.end();
 });
 
@@ -237,7 +239,7 @@ test('don\'t match no string', t => {
     cursor = 0;
     line = 'LET x := 7';
     const match = matchString();
-    t.false(match);
+    t.false(match.isSuccess);
     t.end();
 });
 
