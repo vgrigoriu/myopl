@@ -3,7 +3,6 @@ import { MatchResult } from './tokenizer'
 
 let line: string;
 let cursor = 0;
-let token: string | undefined;
 
 const variables: Map<string, number> = new Map<string, number>();
 
@@ -92,7 +91,6 @@ function parseValue() {
 }
 
 function skipWhitespace() {
-    const x = line[cursor];
     while (cursor < line.length && char.isSpace(line[cursor])) {
         cursor += 1;
     }
