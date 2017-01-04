@@ -34,11 +34,12 @@ function parseLet() {
         throw new Error('= expected');
     }
 
-    if (!matchNumber()) {
+    const numberMatch = matchNumber();
+    if (!numberMatch.isSuccess) {
         throw new Error('Number expected');
     }
 
-    const varValue = parseInt(token!, 10);
+    const varValue = parseInt(numberMatch.getToken().text, 10);
     if (!matchEol()) {
         throw new Error('End of line expected');
     }
@@ -70,8 +71,9 @@ function parseValue() {
         return stringMatch.getToken().text;
     }
 
-    if (matchNumber()) {
-        return parseInt(token!, 10);
+    const numberMatch = matchNumber();
+    if (numberMatch.isSuccess) {
+        return parseInt(numberMatch.getToken().text, 10);
     }
 
     if (matchVariable()) {
@@ -140,10 +142,10 @@ function matchString(): MatchResult {
     });
 }
 
-function matchNumber(): boolean {
+function matchNumber(): MatchResult {
     skipWhitespace();
     if (line.length <= cursor || !char.isDigit(line[cursor])) {
-        return false;
+        return MatchResult.fail();
     }
 
     const mark = cursor;
@@ -151,8 +153,11 @@ function matchNumber(): boolean {
         cursor += 1;
     }
 
-    token = line.substring(mark, cursor);
-    return true;
+    return MatchResult.from({
+        type: 'number',
+        text: line.substring(mark, cursor),
+        start: mark
+    });
 }
 
 function matchVariable(): boolean {
@@ -247,8 +252,8 @@ test('match number at the beginning', t => {
     cursor = 0;
     line = '123+456';
     const match = matchNumber();
-    t.true(match);
-    t.equal(token, '123');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, '123');
     t.end();
 });
 
@@ -256,8 +261,8 @@ test('match number after spaces', t => {
     cursor = 0;
     line = ' 998 bottles of beer on the wall';
     const match = matchNumber();
-    t.true(match);
-    t.equal(token, '998');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, '998');
     t.end();
 });
 
@@ -265,7 +270,7 @@ test('don\'t match no number', t => {
     cursor = 0;
     line = 'LET x := 7';
     const match = matchNumber();
-    t.false(match);
+    t.false(match.isSuccess);
     t.end();
 });
 
