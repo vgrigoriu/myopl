@@ -24,12 +24,13 @@ function parse_statement() {
 }
 
 function parseLet() {
-    if (!matchVariable()) {
+    const varMatch = matchVariable();
+    if (!varMatch.isSuccess) {
         throw new Error('Variable expected');
     }
 
     // variable names are not case sensitive
-    const varName = token!.toLowerCase();
+    const varName = varMatch.getToken().text.toLowerCase();
     if (!match('=')) {
         throw new Error('= expected');
     }
@@ -76,8 +77,10 @@ function parseValue() {
         return parseInt(numberMatch.getToken().text, 10);
     }
 
-    if (matchVariable()) {
-        const varName = token!.toLowerCase();
+    const varMatch = matchVariable();
+    if (varMatch.isSuccess) {
+        // variable names are case insensitive
+        const varName = varMatch.getToken().text.toLowerCase();
         if (variables.has(varName)) {
             return variables.get(varName)!;
         } else {
@@ -160,10 +163,10 @@ function matchNumber(): MatchResult {
     });
 }
 
-function matchVariable(): boolean {
+function matchVariable(): MatchResult {
     skipWhitespace();
     if (line.length <= cursor || !char.isAlpha(line[cursor])) {
-        return false;
+        return MatchResult.fail();
     }
 
     const mark = cursor;
@@ -174,8 +177,11 @@ function matchVariable(): boolean {
         cursor += 1;
     }
 
-    token = line.substring(mark, cursor);
-    return true;
+    return MatchResult.from({
+        type: 'variable',
+        text: line.substring(mark, cursor),
+        start: mark
+    });
 }
 
 function match(text: string): boolean {
@@ -278,8 +284,8 @@ test('match variable at the beginning', t => {
     cursor = 0;
     line = 'myVar1 > 12';
     const match = matchVariable();
-    t.true(match);
-    t.equal(token, 'myVar1');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'myVar1');
     t.end();
 });
 
@@ -287,8 +293,8 @@ test('match variable after spaces', t => {
     cursor = 3;
     line = 'LET    A1B := 21';
     const match = matchVariable();
-    t.true(match);
-    t.equal(token, 'A1B');
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'A1B');
     t.end();
 });
 
@@ -296,7 +302,7 @@ test('don\'t match no variable', t => {
     cursor = 0;
     line = '"var1"';
     const match = matchVariable();
-    t.false(match);
+    t.false(match.isSuccess);
     t.end();
 });
 
