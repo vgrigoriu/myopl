@@ -1,7 +1,7 @@
 interface Token {
     readonly start: number;
     readonly text: string;
-    readonly type: 'variable' | 'number' | 'keyword' | 'number' | 'string';
+    readonly type: 'variable' | 'number' | 'keyword' | 'string' | 'literal';
 }
 
 export class MatchResult {

@@ -31,7 +31,7 @@ function parseLet() {
 
     // variable names are not case sensitive
     const varName = varMatch.getToken().text.toLowerCase();
-    if (!match('=')) {
+    if (!match('=').isSuccess) {
         throw new Error('= expected');
     }
 
@@ -55,7 +55,7 @@ function parsePrint() {
     }
 
     let value = parseValue().toString();
-    while (match(',')) {
+    while (match(',').isSuccess) {
         value += parseValue().toString();
     }
 
@@ -184,15 +184,20 @@ function matchVariable(): MatchResult {
     });
 }
 
-function match(text: string): boolean {
+function match(text: string): MatchResult {
     skipWhitespace();
 
     if (line.startsWith(text, cursor)) {
+        const mark = cursor;
         cursor += text.length;
-        return true;
+        return MatchResult.from({
+            type: 'literal',
+            text,
+            start: mark
+        });
     }
 
-    return false;
+    return MatchResult.fail();
 }
 
 function matchEol(): boolean {
