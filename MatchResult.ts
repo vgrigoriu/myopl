@@ -9,7 +9,7 @@ interface Token {
                  | 'eol';
 }
 
-export class MatchResult {
+export default class MatchResult {
     public static fail() {
         return new MatchResult(false);
     }
