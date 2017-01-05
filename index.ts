@@ -1,5 +1,5 @@
 import * as char from './char';
-import { MatchResult } from './tokenizer'
+import { MatchResult } from './MatchResult'
 
 let line: string;
 let cursor = 0;
