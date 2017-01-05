@@ -88,111 +88,99 @@ function parseValue() {
     throw new Error('Value expected');
 }
 
-// import * as test from 'tape';
+import * as test from 'tape';
 
-// test('match keyword at the beginning', t => {
-//     cursor = 0;
-//     line = 'LET x = 12';
-//     const match = matchKeyword();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, 'LET');
-//     t.end();
-// });
+test('match keyword at the beginning', t => {
+    const tokenizer = new Tokenizer('LET x = 12');
+    const match = tokenizer.matchKeyword();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'LET');
+    t.end();
+});
 
-// test('match keyword after spaces', t => {
-//     cursor = 0;
-//     line = '  \tREM this is a comment';
-//     const match = matchKeyword();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, 'REM');
-//     t.end();
-// });
+test('match keyword after spaces', t => {
+    const tokenizer = new Tokenizer('  \tREM this is a comment');
+    const match = tokenizer.matchKeyword();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'REM');
+    t.end();
+});
 
-// test('don\'t match no keyword', t => {
-//     cursor = 0;
-//     line = '"begins with quote"';
-//     const match = matchKeyword();
-//     t.false(match.isSuccess);
-//     t.end();
-// });
+test('don\'t match no keyword', t => {
+    const tokenizer = new Tokenizer('"begins with quote"');
+    const match = tokenizer.matchKeyword();
+    t.false(match.isSuccess);
+    t.end();
+});
 
-// test('match string at the beginning', t => {
-//     cursor = 0;
-//     line = '"here is" a string';
-//     const match = matchString();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, 'here is');
-//     t.end();
-// });
+test('match string at the beginning', t => {
+    const tokenizer = new Tokenizer('"here is" a string');
+    const match = tokenizer.matchString();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'here is');
+    t.end();
+});
 
-// test('match string after spaces', t => {
-//     cursor = 0;
-//     line = '   "some say" the trout is a fish';
-//     const match = matchString();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, 'some say');
-//     t.end();
-// });
+test('match string after spaces', t => {
+    const tokenizer = new Tokenizer('   "some say" the trout is a fish');
+    const match = tokenizer.matchString();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'some say');
+    t.end();
+});
 
-// test('don\'t match no string', t => {
-//     cursor = 0;
-//     line = 'LET x := 7';
-//     const match = matchString();
-//     t.false(match.isSuccess);
-//     t.end();
-// });
+test('don\'t match no string', t => {
+    const tokenizer = new Tokenizer('LET x := 7');
+    const match = tokenizer.matchString();
+    t.false(match.isSuccess);
+    t.end();
+});
 
-// test('match number at the beginning', t => {
-//     cursor = 0;
-//     line = '123+456';
-//     const match = matchNumber();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, '123');
-//     t.end();
-// });
+test('match number at the beginning', t => {
+    const tokenizer = new Tokenizer('123+456');
+    const match = tokenizer.matchNumber();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, '123');
+    t.end();
+});
 
-// test('match number after spaces', t => {
-//     cursor = 0;
-//     line = ' 998 bottles of beer on the wall';
-//     const match = matchNumber();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, '998');
-//     t.end();
-// });
+test('match number after spaces', t => {
+    const tokenizer = new Tokenizer(' 998 bottles of beer on the wall');
+    const match = tokenizer.matchNumber();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, '998');
+    t.end();
+});
 
-// test('don\'t match no number', t => {
-//     cursor = 0;
-//     line = 'LET x := 7';
-//     const match = matchNumber();
-//     t.false(match.isSuccess);
-//     t.end();
-// });
+test('don\'t match no number', t => {
+    const tokenizer = new Tokenizer('LET x := 7');
+    const match = tokenizer.matchNumber();
+    t.false(match.isSuccess);
+    t.end();
+});
 
-// test('match variable at the beginning', t => {
-//     cursor = 0;
-//     line = 'myVar1 > 12';
-//     const match = matchVariable();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, 'myVar1');
-//     t.end();
-// });
+test('match variable at the beginning', t => {
+    const tokenizer = new Tokenizer('myVar1 > 12');
+    const match = tokenizer.matchVariable();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'myVar1');
+    t.end();
+});
 
-// test('match variable after spaces', t => {
-//     cursor = 3;
-//     line = 'LET    A1B := 21';
-//     const match = matchVariable();
-//     t.true(match.isSuccess);
-//     t.equal(match.getToken().text, 'A1B');
-//     t.end();
-// });
+test('match variable after spaces', t => {
+    const tokenizer = new Tokenizer('    A1B := 21');
+    const match = tokenizer.matchVariable();
+    t.true(match.isSuccess);
+    t.equal(match.getToken().text, 'A1B');
+    t.end();
+});
 
-// test('don\'t match no variable', t => {
-//     cursor = 0;
-//     line = '"var1"';
-//     const match = matchVariable();
-//     t.false(match.isSuccess);
-//     t.end();
-// });
+test('don\'t match no variable', t => {
+    const tokenizer = new Tokenizer('"var1"');
+    const match = tokenizer.matchVariable();
+    t.false(match.isSuccess);
+    t.end();
+});
 
 // main
 t = new Tokenizer('LET a = 42');
