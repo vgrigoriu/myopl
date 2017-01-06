@@ -182,8 +182,47 @@ test('don\'t match no variable', t => {
     t.end();
 });
 
-// main
-t = new Tokenizer('LET a = 42');
-parseStatement();
-t = new Tokenizer('PRINT "a = ", a');
-parseStatement();
+function stdinIsReadable(): Promise<void> {
+    return new Promise<void>(resolve => {
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('readable', () => {
+            resolve();
+        });
+    });
+}
+
+function readLine(): Promise<string> {
+    return new Promise<string>((resolve) => {
+        process.stdin.once('data', (chunk: string) => {
+            resolve(chunk);
+        });
+    });
+}
+
+function write(line: string): Promise<void> {
+    return new Promise<void>(resolve => {
+        process.stdout.write(line, 'utf8', resolve);
+    });
+}
+
+async function repl() {
+    await write('BASIC v0.1 READY\n');
+    await stdinIsReadable();
+    while (true) {
+        await write('> ');
+        const line = await readLine();
+        if (line.trim() === 'bye') {
+            await write('bye\n');
+            process.exit();
+        }
+
+        t = new Tokenizer(line);
+        try {
+            parseStatement();
+        } catch (e) {
+            await write(`${e}\n`);
+        }
+    }
+}
+
+repl();
