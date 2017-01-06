@@ -4,7 +4,7 @@ let t: Tokenizer;
 
 const variables: Map<string, number> = new Map<string, number>();
 
-function parse_statement() {
+function parseStatement() {
     const keyword = t.matchKeyword();
     if (!keyword.isSuccess) {
         throw new Error('Statement expected');
@@ -184,6 +184,6 @@ test('don\'t match no variable', t => {
 
 // main
 t = new Tokenizer('LET a = 42');
-parse_statement();
+parseStatement();
 t = new Tokenizer('PRINT "a = ", a');
-parse_statement();
+parseStatement();
