@@ -32,17 +32,10 @@ function parseLet() {
         throw new Error('= expected');
     }
 
-    const numberMatch = t.matchNumber();
-    if (!numberMatch.isSuccess) {
-        throw new Error('Number expected');
-    }
-
-    const varValue = parseInt(numberMatch.getToken().text, 10);
+    variables.set(varName, parseExpression());
     if (!t.matchEol().isSuccess) {
         throw new Error('End of line expected');
     }
-
-    variables.set(varName, varValue);
 }
 
 function parsePrint() {
@@ -69,6 +62,50 @@ function parseValue() {
         return stringMatch.getToken().text;
     }
 
+    return parseExpression();
+}
+
+function parseExpression(): number {
+    let t1 = parseTerm();
+    let operator = t.matchAddOrSub();
+    while (operator.isSuccess) {
+        const t2 = parseTerm();
+        const op = operator.getToken().text;
+        if (op === '+') {
+            t1 = t1 + t2;
+        } else if (op === '-') {
+            t1 = t1 - t2;
+        } else {
+            throw new Error(`Unknown operator: ${op}`);
+        }
+
+        operator = t.matchAddOrSub();
+    }
+
+    return t1;
+}
+
+function parseTerm(): number {
+    let t1 = parseFactor();
+    let operator = t.matchMulOrDiv();
+    while (operator.isSuccess) {
+        const t2 = parseFactor();
+        const op = operator.getToken().text;
+        if (op === '*') {
+            t1 = t1 * t2;
+        } else if (op === '/') {
+            t1 = t1 / t2;
+        } else {
+            throw new Error(`Unknown operator: ${op}`);
+        }
+
+        operator = t.matchMulOrDiv();
+    }
+
+    return t1;
+}
+
+function parseFactor(): number {
     const numberMatch = t.matchNumber();
     if (numberMatch.isSuccess) {
         return parseInt(numberMatch.getToken().text, 10);
@@ -85,7 +122,16 @@ function parseValue() {
         }
     }
 
-    throw new Error('Value expected');
+    if (t.match('(').isSuccess) {
+        const value = parseExpression();
+        if (t.match(')').isSuccess) {
+            return value;
+        } else {
+            throw new Error('Missing ")"');
+        }
+    }
+
+    throw new Error('Expression expected');
 }
 
 import * as test from 'tape';
