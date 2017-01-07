@@ -94,6 +94,46 @@ export default class Tokenizer {
         });
     }
 
+    public matchAddOrSub(): MatchResult {
+        const plus = this.match('+');
+        if (plus.isSuccess) {
+            return MatchResult.from({
+                ...plus.getToken(),
+                type: 'operator'
+            });
+        }
+
+        const minus = this.match('-');
+        if (minus.isSuccess) {
+            return MatchResult.from({
+                ...minus.getToken(),
+                type: 'operator'
+            });
+        }
+
+        return MatchResult.fail();
+    }
+
+    public matchMulOrDiv(): MatchResult {
+        const mul = this.match('*');
+        if (mul.isSuccess) {
+            return MatchResult.from({
+                ...mul.getToken(),
+                type: 'operator'
+            });
+        }
+
+        const div = this.match('/');
+        if (div.isSuccess) {
+            return MatchResult.from({
+                ...div.getToken(),
+                type: 'operator'
+            });
+        }
+
+        return MatchResult.fail();
+    }
+
     public match(text: string): MatchResult {
         this.skipWhitespace();
 

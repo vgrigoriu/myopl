@@ -6,7 +6,8 @@ interface Token {
                  | 'keyword'
                  | 'string'
                  | 'literal'
-                 | 'eol';
+                 | 'eol'
+                 | 'operator';
 }
 
 export default class MatchResult {
