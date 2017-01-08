@@ -66,6 +66,13 @@ export default class Tokenizer {
             this.cursor += 1;
         }
 
+        if (this.cursor < this.line.length && this.line[this.cursor] == '.') {
+            this.cursor += 1;
+            while (this.cursor < this.line.length && char.isDigit(this.line[this.cursor])) {
+                this.cursor += 1;
+            }
+        }
+
         return MatchResult.from({
             type: 'number',
             text: this.line.substring(mark, this.cursor),

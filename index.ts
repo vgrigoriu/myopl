@@ -108,7 +108,7 @@ function parseTerm(): number {
 function parseFactor(): number {
     const numberMatch = t.matchNumber();
     if (numberMatch.isSuccess) {
-        return parseInt(numberMatch.getToken().text, 10);
+        return parseFloat(numberMatch.getToken().text);
     }
 
     const varMatch = t.matchVariable();
